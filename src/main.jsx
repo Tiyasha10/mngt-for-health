@@ -8,7 +8,7 @@ import './index.css'
 const root= ReactDOM.createRoot(document.getElementById("root"));
 root.render(
     <PrivyProvider
-      appId="cm6qcimre00pv7v6jdpsxmque"
+      appId="cm6qcinn4036k10jmwprnkfki"
       config={{
         // Customize Privy's appearance in your app
         appearance: {
@@ -21,4 +21,4 @@ root.render(
       <App />
       </Router>
     </PrivyProvider>
-)
+);
