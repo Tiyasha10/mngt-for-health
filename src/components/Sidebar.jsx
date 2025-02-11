@@ -4,22 +4,25 @@ import { sun } from "../assets";
 import { Link, useNavigate } from "react-router-dom";
 import { IconHeartHandshake } from "@tabler/icons-react";
 
-const Icon =({styles, name, imageUrl, isActive, disabled, handleClick}) =>{
-    return(
-        <div className={`h-[64px] w-[50px] rounded-[10px] ${isActive && isActive===name && 'bg-[#2c2f32]'} flex items-center justify-center ${styles}`}
-         onClick={handleClick}
+const Icon = ({ styles, name, imageUrl, isActive, handleClick }) => {
+    return (
+        <div
+            className={`h-[64px] w-[50px] rounded-[10px] flex items-center justify-center cursor-pointer 
+            transition-all duration-300 ease-in-out
+            ${isActive === name ? 'bg-[#2c2f32] shadow-md' : 'hover:bg-[#3a3a43]'} 
+            hover:scale-110`}
+            onClick={handleClick}
         >
-            {!isActive ? (
-                <img src={imageUrl} alt="wellness360 logo" className="h-6 w-6" 
-                />
-            ):(
-                <img src={imageUrl} alt="wellness360 logo" className={` h-6 w-6 ${isActive !== name && 'grayscale'}`} 
-                />
-            )}
-
+            <img
+                src={imageUrl}
+                alt="icon"
+                className={`h-6 w-6 transition-all duration-300 
+                ${isActive !== name ? 'grayscale opacity-60' : ''}`}
+            />
         </div>
     );
 };
+
 
 const Sidebar=() => {
     const navigate= useNavigate()
