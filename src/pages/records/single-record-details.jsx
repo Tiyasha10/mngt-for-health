@@ -53,6 +53,7 @@ const SingleRecordDetails = () => {
             {/*fileuploadmodal*/}
             <FileUploadModal
             //isOpen={isModalOpen}
+            
             />
             <RecordDetailsHeader recordName={state.recordName}/>
 
