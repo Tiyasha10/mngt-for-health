@@ -1,26 +1,24 @@
-import {screening, user, apps, records} from '../assets'
+import {records, user, apps, screening} from "../assets";
 
-export const navLinks = [
+export const navLinks=[
     {
-        name : 'dashboard',
+        name: "dashboard",
         imageUrl: apps,
-        link: '/'
+        link: "/",
     },
-    
     {
-        name : 'records',
-        imageUrl: records,
-        link: '/medical-records'
+        name: "records",
+        imageUrl : records,
+        link:"/medical-records",
     },
-    
     {
-        name : 'screening',
+        name:"screening",
         imageUrl: screening,
-        link: '/screening-records'
+        link:"/screening-schedules",
     },
     {
-        name : 'profile',
+        name: "profile",
         imageUrl: user,
-        link: '/profile'
+        link: "/profile",
     },
-]
+];
