@@ -6,9 +6,9 @@ const ScreeningSchedule = () => {
     const state = useLocation();
     return (
         <div className="w-full overflow-scholl">
-            <p>
+            
                 <KanbanBoard state={state}/>
-            </p>
+            
 
         </div>
     );
