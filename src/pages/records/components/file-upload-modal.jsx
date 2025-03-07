@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Modal from "./Modal";
 import { IconProgress } from "@tabler/icons-react";
 
@@ -11,13 +11,25 @@ const FileUploadModal = ({
   uploadSuccess,
   filename,
 }) => {
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleUploadClick = () => {
+    if (!filename) {
+      setErrorMessage("Please upload a file before analyzing.");
+      return;
+    }
+    setErrorMessage("");
+    onFileUpload(); // Proceed with upload
+  };
+
   return (
     <Modal
       title="Upload Reports"
       isOpen={isOpen}
       onClose={onClose}
-      onAction={onFileUpload}
+      onAction={handleUploadClick}
       actionLabel="Upload and Analyze"
+      disabled={!filename} // Disable button if no file is uploaded
     >
       <div className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 p-8 text-slate-700 dark:border-slate-700 dark:text-slate-300">
         <svg
@@ -51,6 +63,9 @@ const FileUploadModal = ({
         </div>
         <small id="validFileFormats">PNG, PDF, JPEG - Max 5MB</small>
       </div>
+
+      {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
+
       {uploading && (
         <IconProgress
           size={15}

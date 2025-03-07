@@ -1,6 +1,6 @@
 import {neon} from '@neondatabase/serverless'
 import {drizzle} from 'drizzle-orm/neon-http'
-import * as schema  from './schema'
+import * as schema  from "./schema.js"
 
 const sql = neon(
     "postgresql://neondb_owner:npg_C8rMoWxF3YyK@ep-plain-bread-a8up7ldh-pooler.eastus2.azure.neon.tech/db1?sslmode=require",
