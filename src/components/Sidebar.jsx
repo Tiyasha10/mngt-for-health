@@ -16,8 +16,8 @@ const Icon = ({ name, imageUrl, isActive, handleClick }) => {
             <img
                 src={imageUrl}
                 alt={name}
-                className={`h-6 w-6 transition-all duration-300 
-                ${isActive !== name ? 'grayscale opacity-60' : ''}`}
+                className={`h-8 w-8 transition-all duration-300 object-contain 
+                ${isActive !== name ? 'grayscale opacity-60' : ''}`} // ✅ Ensure GIF is animated
             />
 
             {/* Tooltip positioned ABOVE the cursor */}
