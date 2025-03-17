@@ -178,7 +178,30 @@ const MedicalExercisePage = () => {
                     >
                         ➕ Add Exercise
                     </button>
+                    
                 </div>
+                 {/* 📌 Exercise Reminder Box */}
+                 {exerciseLog.length > 0 && (
+                    <div className="bg-gray-800 p-6 rounded-lg shadow-md border border-gray-600 mt-6">
+                        <h2 className="text-xl font-semibold text-orange-400 mb-4">📌 Exercise Reminder</h2>
+                        <ul className="list-disc pl-6 space-y-2 text-lg">
+                            {exerciseLog.map((exercise, index) => (
+                                <li key={index} className="flex justify-between items-center p-2 rounded-lg transition-all duration-300 hover:bg-gray-700">
+                                    <span>
+                                        <FaDumbbell className="inline-block mr-2 text-yellow-400" />
+                                        {exercise.name} ({exercise.sets} sets, {exercise.reps} reps)
+                                    </span>
+                                    <button
+                                        onClick={() => setExerciseLog(exerciseLog.filter((_, i) => i !== index))}
+                                        className="text-red-400 hover:text-red-500 transition-all duration-300 transform hover:scale-110"
+                                    >
+                                        <MdDelete className="text-xl" />
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
         </div>
     );
