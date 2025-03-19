@@ -28,6 +28,19 @@ const MedicalExercisePage = () => {
         weight: { min: 26, max: 150 }
     };
 
+    // Retrieve records from localStorage when the component mounts
+    useEffect(() => {
+        const storedRecords = localStorage.getItem("bmiRecords");
+        if (storedRecords) {
+            setBmiRecords(JSON.parse(storedRecords));
+        }
+    }, []);
+
+    // Save records to localStorage whenever bmiRecords changes
+    useEffect(() => {
+        localStorage.setItem("bmiRecords", JSON.stringify(bmiRecords));
+    }, [bmiRecords]);
+
 
     const handleUserInfoChange = (e) => {
         const { name, value } = e.target;
@@ -94,8 +107,11 @@ const MedicalExercisePage = () => {
         const newRecord = {
             height: heightValue,
             weight: weightValue,
+            sex: sex,
             bmi: bmiValue.toFixed(2),
             category,
+            colorClass,
+            createdAt: new Date().toISOString(), // Add a timestamp
         };
     
         setBmiRecords(prevRecords => [...prevRecords, newRecord]);
@@ -227,10 +243,10 @@ const MedicalExercisePage = () => {
                     </div>
                 )}
 
-                <div className="mt-6 p-6 bg-gray-800 rounded-lg shadow-md">
+                    <div className="mt-6 p-6 bg-gray-800 rounded-lg shadow-md">
                     <h2 className="text-xl font-semibold text-green-400 mb-4">📊 Past Records</h2>
                     {bmiRecords.length > 0 ? (
-                        <PastRecordsGrid records={bmiRecords} />  // ✅ Ensure this gets updated
+                        <PastRecordsGrid records={bmiRecords} />
                     ) : (
                         <p className="text-gray-400">No records available. Add a new record to see it here.</p>
                     )}

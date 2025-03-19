@@ -41,7 +41,7 @@ export const pastRecords = pgTable('past_records', {
 });
 
 // Exercises Table (for exercise recommendations)
-export const exercises = pgTable('exercises', {
+/*export const exercises = pgTable('exercises', {
   id: serial('id').primaryKey(),
   exerciseName: varchar('exercise_name').notNull(),
   duration: numeric('duration').notNull(),
@@ -49,3 +49,4 @@ export const exercises = pgTable('exercises', {
   recordId: integer('record_id').references(() => pastRecords.id), // Link to past_records
   createdAt: timestamp('created_at').defaultNow(),
 });
+*/

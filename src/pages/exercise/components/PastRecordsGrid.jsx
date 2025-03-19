@@ -10,6 +10,7 @@ const PastRecordsGrid = ({ records }) => {
                     <th className="p-2">Sex</th>
                     <th className="p-2">BMI</th>
                     <th className="p-2">Category</th>
+                    <th className="p-3">Date</th>
                 </tr>
             </thead>
             <tbody>
@@ -20,6 +21,9 @@ const PastRecordsGrid = ({ records }) => {
                         <td className="p-2">{record.sex}</td>
                         <td className="p-2">{record.bmi}</td>
                         <td className="p-2">{record.category}</td>
+                        <td className="p-3">
+                        {new Date(record.createdAt).toLocaleDateString()} {/* Format the date */}
+                        </td>
                     </tr>
                 ))}
             </tbody>
