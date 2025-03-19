@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaDumbbell } from "react-icons/fa";
+import PastRecordsGrid from "./components/PastRecordsGrid";
 
 const API_KEY = "87e45d4bccmsh67dcaaf97a5ef70p16cfe4jsn3f559836a95c";
 const API_URL = "https://exercisedb.p.rapidapi.com/exercises/bodyPart/";
+
 
 const MedicalExercisePage = () => {
     const [userInfo, setUserInfo] = useState({
@@ -16,12 +18,16 @@ const MedicalExercisePage = () => {
     const [bmiColor, setBmiColor] = useState("bg-gray-800");
     const [bmiWarningMessage, setBmiWarningMessage] = useState("");
     const [exerciseRecommendations, setExerciseRecommendations] = useState([]);
+    //const [pastRecords, setPastRecords] = useState([]);
+    const [bmiRecords, setBmiRecords] = useState([]);  // ✅ Store records locally
+
 
     // Added dynamic boundaries
     const BOUNDARIES = {
         height: { min: 100, max: 250 },
         weight: { min: 26, max: 150 }
     };
+
 
     const handleUserInfoChange = (e) => {
         const { name, value } = e.target;
@@ -38,9 +44,8 @@ const MedicalExercisePage = () => {
             setBmiWarningMessage("⚠️ Please fill all required fields for BMI calculation!");
             return;
         }
-        
-        // Updated boundary checks with dynamic messages
-        if (heightValue < BOUNDARIES.height.min || heightValue > BOUNDARIES.height.max) {
+
+          if (heightValue < BOUNDARIES.height.min || heightValue > BOUNDARIES.height.max) {
             setBmiWarningMessage(`⚠️ Height must be between ${BOUNDARIES.height.min} cm and ${BOUNDARIES.height.max} cm!`);
             return;
         }
@@ -86,73 +91,86 @@ const MedicalExercisePage = () => {
         setBmiCategory(category);
         setBmiColor(colorClass);
 
+        const newRecord = {
+            height: heightValue,
+            weight: weightValue,
+            bmi: bmiValue.toFixed(2),
+            category,
+        };
+    
+        setBmiRecords(prevRecords => [...prevRecords, newRecord]);
+
         fetchExercises(category);
+
+
     };
 
+
     const fetchExercises = async (bmiCategory) => {
-    let bodyParts = [];
-    // Corrected body parts to match API's available options
-    const validBodyParts = [
-        'back', 'cardio', 'chest', 'lower arms', 'lower legs', 
-        'neck', 'shoulders', 'upper arms', 'upper legs', 'waist'
-    ];
+        let bodyParts = [];
+        const validBodyParts = [
+            'back', 'cardio', 'chest', 'lower arms', 'lower legs', 
+            'neck', 'shoulders', 'upper arms', 'upper legs', 'waist'
+        ];
 
-    if (bmiCategory.includes("Severe Thinness") || bmiCategory.includes("Moderate Thinness")) {
-        bodyParts = ["upper arms", "upper legs", "chest"];
-    } else if (bmiCategory.includes("Mild Thinness")) {
-        bodyParts = ["upper arms", "upper legs", "back"];
-    } else if (bmiCategory === "Normal") {
-        bodyParts = ["cardio", "shoulders", "waist"];
-    } else if (bmiCategory === "Overweight") {
-        bodyParts = ["cardio", "lower legs", "waist"];
-    } else if (bmiCategory === "Obese Class I") {
-        bodyParts = ["cardio", "upper legs", "lower legs"];
-    } else if (bmiCategory === "Obese Class II") {
-        bodyParts = ["cardio", "waist", "lower arms"];
-    } else {
-        bodyParts = ["cardio", "upper legs"];
-    }
-
-    try {
-        // Filter valid body parts and make requests
-        const validRequests = bodyParts
-            .filter(part => validBodyParts.includes(part))
-            .map(part => 
-                fetch(`${API_URL}${encodeURIComponent(part)}`, {
-                    method: "GET",
-                    headers: {
-                        "X-RapidAPI-Key": API_KEY, 
-                        "X-RapidAPI-Host": "exercisedb.p.rapidapi.com"
-                    }
-                })
-            );
-
-        const responses = await Promise.all(validRequests);
-        
-        // Check for valid responses
-        const validResponses = responses.filter(response => 
-            response.status === 200 && response.ok
-        );
-
-        if (validResponses.length === 0) {
-            throw new Error("No valid exercise data found");
+        if (bmiCategory.includes("Severe Thinness") || bmiCategory.includes("Moderate Thinness")) {
+            bodyParts = ["upper arms", "upper legs", "chest"];
+        } else if (bmiCategory.includes("Mild Thinness")) {
+            bodyParts = ["upper arms", "upper legs", "back"];
+        } else if (bmiCategory === "Normal") {
+            bodyParts = ["cardio", "shoulders", "waist"];
+        } else if (bmiCategory === "Overweight") {
+            bodyParts = ["cardio", "lower legs", "waist"];
+        } else if (bmiCategory === "Obese Class I") {
+            bodyParts = ["cardio", "upper legs", "lower legs"];
+        } else if (bmiCategory === "Obese Class II") {
+            bodyParts = ["cardio", "waist", "lower arms"];
+        } else {
+            bodyParts = ["cardio", "upper legs"];
         }
 
-        const data = await Promise.all(validResponses.map(res => res.json()));
-        const combinedData = data.flat();
+        try {
+            console.log("🚀 Fetching exercise data for:", bodyParts);
         
-        // Use proper placeholder URL
-        const exercisesWithFallback = combinedData.map(exercise => ({
-            ...exercise,
-            gifUrl: exercise.gifUrl || "https://placehold.co/600x400"
-        }));
-
-        setExerciseRecommendations(exercisesWithFallback.slice(0, 12));
-    } catch (error) {
-        console.error("Error fetching exercises:", error);
-        setExerciseRecommendations([]);
-    }
-};
+            const validRequests = bodyParts
+                .filter(part => validBodyParts.includes(part))
+                .map(part => {
+                    console.log(`🔹 Fetching data for: ${part}`);
+                    return fetch(`${API_URL}${encodeURIComponent(part)}`, {
+                        method: "GET",
+                        headers: {
+                            "X-RapidAPI-Key": API_KEY, 
+                            "X-RapidAPI-Host": "exercisedb.p.rapidapi.com"
+                        }
+                    });
+                });
+        
+                const responses = await Promise.all(validRequests);
+        
+                // Check for valid responses
+                const validResponses = responses.filter(response => 
+                    response.status === 200 && response.ok
+                );
+        
+                if (validResponses.length === 0) {
+                    throw new Error("No valid exercise data found");
+                }
+        
+                const data = await Promise.all(validResponses.map(res => res.json()));
+                const combinedData = data.flat();
+                
+                // Use proper placeholder URL
+                const exercisesWithFallback = combinedData.map(exercise => ({
+                    ...exercise,
+                    gifUrl: exercise.gifUrl || "https://placehold.co/600x400"
+                }));
+        
+                setExerciseRecommendations(exercisesWithFallback.slice(0, 12));
+            } catch (error) {
+                console.error("Error fetching exercises:", error);
+                setExerciseRecommendations([]);
+            }
+        };
     return (
         <div className="min-h-screen w-full flex flex-col items-center bg-gray-900 text-gray-200 p-6">
             <div className="w-full max-w-6xl bg-gray-800 bg-opacity-90 shadow-lg rounded-lg p-8">
@@ -209,13 +227,21 @@ const MedicalExercisePage = () => {
                     </div>
                 )}
 
+                <div className="mt-6 p-6 bg-gray-800 rounded-lg shadow-md">
+                    <h2 className="text-xl font-semibold text-green-400 mb-4">📊 Past Records</h2>
+                    {bmiRecords.length > 0 ? (
+                        <PastRecordsGrid records={bmiRecords} />  // ✅ Ensure this gets updated
+                    ) : (
+                        <p className="text-gray-400">No records available. Add a new record to see it here.</p>
+                    )}
+                </div>
+
                 {exerciseRecommendations.length > 0 && (
                     <div className="mt-6 p-6 bg-gray-800 rounded-lg shadow-md">
                         <h2 className="text-xl font-semibold text-green-400 mb-4">🎯 Recommended Exercises</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {exerciseRecommendations.map((exercise, index) => (
                                 <div key={index} className="p-6 bg-gray-900 rounded-xl shadow-xl h-full">
-                                    {/* Increased image container size */}
                                     <div className="mb-4 h-64 overflow-hidden rounded-lg bg-gray-800 flex items-center justify-center">
                                         <img 
                                             src={exercise.gifUrl || "https://placehold.co/600x400"} 

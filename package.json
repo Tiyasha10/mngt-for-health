@@ -29,6 +29,7 @@
     "express": "^4.21.2",
     "framer-motion": "^12.5.0",
     "markdown-to-jsx": "^7.4.7",
+    "morgan": "^1.10.0",
     "openai": "^4.52.0",
     "pdfjs-dist": "^4.10.38",
     "preline": "^2.3.0",
