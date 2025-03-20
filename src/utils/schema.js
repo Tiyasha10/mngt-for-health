@@ -30,7 +30,7 @@ export const Records = pgTable('records', {
 });
 
 // Past Records Table (for BMI and user data)
-export const pastRecords = pgTable('past_records', {
+/* export const pastRecords = pgTable('past_records', {
   id: serial('id').primaryKey(),
   height: numeric('height').notNull(),
   weight: numeric('weight').notNull(),
@@ -41,7 +41,7 @@ export const pastRecords = pgTable('past_records', {
 });
 
 // Exercises Table (for exercise recommendations)
-/*export const exercises = pgTable('exercises', {
+export const exercises = pgTable('exercises', {
   id: serial('id').primaryKey(),
   exerciseName: varchar('exercise_name').notNull(),
   duration: numeric('duration').notNull(),

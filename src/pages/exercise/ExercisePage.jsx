@@ -104,7 +104,7 @@ const MedicalExercisePage = () => {
         setBmiCategory(category);
         setBmiColor(colorClass);
 
-        const newRecord = {
+       const newRecord = {
             height: heightValue,
             weight: weightValue,
             sex: sex,
@@ -187,6 +187,18 @@ const MedicalExercisePage = () => {
                 setExerciseRecommendations([]);
             }
         };
+
+        const handleDeleteRecord = (index) => {
+            setBmiRecords((prevRecords) => {
+                const updatedRecords = [...prevRecords];
+                updatedRecords.splice(index, 1); // Remove the record at the specified index
+                return updatedRecords;
+            });
+        };
+    
+        // ... (rest of your existing code, e.g., calculateBMI, fetchExercises, etc.)
+
+
     return (
         <div className="min-h-screen w-full flex flex-col items-center bg-gray-900 text-gray-200 p-6">
             <div className="w-full max-w-6xl bg-gray-800 bg-opacity-90 shadow-lg rounded-lg p-8">
@@ -219,6 +231,7 @@ const MedicalExercisePage = () => {
                                 <option value="default" disabled>Sex (♂️/♀️)</option>
                                 <option value="male">♂️ Male</option>
                                 <option value="female">♀️ Female</option>
+                                <option value="other">  ⚧️ Prefer not to say</option>
                             </select>
                         </div>
                     </div>
@@ -243,10 +256,11 @@ const MedicalExercisePage = () => {
                     </div>
                 )}
 
-                    <div className="mt-6 p-6 bg-gray-800 rounded-lg shadow-md">
+                {/* Past Records Section */}
+                <div className="mt-6 p-6 bg-gray-800 rounded-lg shadow-md">
                     <h2 className="text-xl font-semibold text-green-400 mb-4">📊 Past Records</h2>
                     {bmiRecords.length > 0 ? (
-                        <PastRecordsGrid records={bmiRecords} />
+                        <PastRecordsGrid records={bmiRecords} onDelete={handleDeleteRecord} /> 
                     ) : (
                         <p className="text-gray-400">No records available. Add a new record to see it here.</p>
                     )}
