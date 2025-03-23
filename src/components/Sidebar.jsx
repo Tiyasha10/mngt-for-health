@@ -20,13 +20,13 @@ const Icon = ({ name, imageUrl, isActive, handleClick }) => {
                 ${isActive !== name ? 'grayscale opacity-60' : ''}`} // ✅ Ensure GIF is animated
             />
 
-            {/* Tooltip positioned ABOVE the cursor */}
-            <div className="absolute top-[-40px] left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
+            {/* Smooth Tooltip */}
+            <div className="absolute left-full ml-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
                 <div className="bg-black text-white text-xs rounded-md px-3 py-2 shadow-lg whitespace-nowrap">
                     {name}
                 </div>
                 {/* Tooltip Arrow */}
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-3 h-3 bg-black rotate-45" />
+                <div className="absolute -left-1.5 w-3 h-3 bg-black transform rotate-45" />
             </div>
         </div>
     );
@@ -56,16 +56,7 @@ const Sidebar = () => {
                             }}
                         />
                     ))}
-                    <div>
-                        <Icon 
-                            name="sun" 
-                            imageUrl={sun} 
-                            isActive={isActive} 
-                            handleClick={() => {
-                                setIsActive("sun");
-                            }} 
-                        />
-                    </div>
+                    
                 </div>
             </div>
         </div>
