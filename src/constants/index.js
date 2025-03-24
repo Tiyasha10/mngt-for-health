@@ -2,7 +2,7 @@ import { records } from "../assets";
 import appGif from "../assets/app.gif"; 
 import screeningGif from "../assets/screening.gif"; 
 import userGif from "../assets/user.gif";
-import exerciseGif from "../assets/exercise.gif";  // ✅ Import Exercise GIF
+import exerciseGif from "../assets/exercise.gif";
 import newsGif from "../assets/news.gif"; 
 
 export const navLinks = [
@@ -28,12 +28,13 @@ export const navLinks = [
     },
     {
         name: "exercise",
-        imageUrl: exerciseGif,  // ✅ Use the GIF for Exercise button
+        imageUrl: exerciseGif,
         link: "/exercise",
     },
     {
         name: "news",
-        imageUrl: newsGif,  // ✅ Use the GIF for Exercise button
+        imageUrl: newsGif,
         link: "/news",
     },
 ];
+

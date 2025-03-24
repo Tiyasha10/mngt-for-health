@@ -9,6 +9,7 @@ import MedicalRecord from './pages/records/index';
 import SingleRecordDetails from "./pages/records/single-record-details";
 import ScreeningSchedule from "./pages/ScreeningSchedule";
 import MedicalExercisePage from "./pages/exercise/ExercisePage";
+import NewsPage from "./pages/news/NewsPage";
 
 
 
@@ -42,7 +43,7 @@ const App = () => {
                     <Route path="/medical-records/:id" element={<SingleRecordDetails/>}/>
                     <Route path="/screening-schedules" element={<ScreeningSchedule/> }/>
                     <Route path="/exercise" element={<MedicalExercisePage/>} />
-                    
+                    <Route path="/news" element={<NewsPage/>} />
                 </Routes>
 
             </div>

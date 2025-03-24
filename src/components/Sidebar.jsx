@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { navLinks } from "../constants";
-import { sun } from "../assets";
+//import { sun } from "../assets";
 import { Link, useNavigate } from "react-router-dom";
 import { IconHeartHandshake } from "@tabler/icons-react";
 

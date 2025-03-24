@@ -26,3 +26,11 @@ export const Records = pgTable('records',{
     createdBy: varchar('created_by').notNull(),
 
 });
+
+export const repliesTable = pgTable("replies", {
+  id: serial("id").primaryKey(),
+  text: text("text").notNull(),
+  createdBy: text("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  post_id: integer("post_id").references(() => postsTable.id).notNull(),
+});
