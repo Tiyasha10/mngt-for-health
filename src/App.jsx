@@ -10,8 +10,7 @@ import SingleRecordDetails from "./pages/records/single-record-details";
 import ScreeningSchedule from "./pages/ScreeningSchedule";
 import MedicalExercisePage from "./pages/exercise/ExercisePage";
 import NewsPage from "./pages/news/NewsPage";
-
-
+import { KanbanProvider } from "./context/KanbanContext";
 
 const App = () => {
     const {currentUser}= useStateContext();
@@ -28,6 +27,7 @@ const App = () => {
     
     
     return (
+        <KanbanProvider>
         <div className="relative flex min-h-screen flex-row bg-[#13131a] p-4">
             <div className="relative mr-10 hidden sm:flex">
                 <Sidebar/>
@@ -48,6 +48,7 @@ const App = () => {
 
             </div>
         </div>
+        </KanbanProvider>
     );
 };
 export default App;

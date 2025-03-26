@@ -1,3 +1,5 @@
+//original code
+
 import { IconChevronRight, IconFileUpload, IconProgress } from "@tabler/icons-react";
 import React, { useState } from "react";
 import RecordDetailsHeader from "./components/record-detail-header";
@@ -6,9 +8,12 @@ import FileUploadModal from "./components/file-upload-modal";
 import { useStateContext } from "../../context";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import RactMarkdown from "react-markdown";
+import { useKanban } from "../../context/KanbanContext";
+
 //import ScreeningSchedule from "../ScreeningSchedule";
 
 const SingleRecordDetails = () => {
+    const { resetKanbanBoard } = useKanban();
     const geminiApiKey= import.meta.env.VITE_GEMINI_API_KEY;
     const { state } = useLocation(); // ✅ Ensure state is not null
     const [analysisResult, setAnalysisResult] = useState(state?.analysisResult || "",
@@ -61,6 +66,11 @@ const SingleRecordDetails = () => {
         setUploading(true);
         setUploadSuccess(false);
 
+        // Reset Kanban board state when a new report is uploaded
+        if (resetKanbanBoard) {
+            resetKanbanBoard(); // Call the reset function passed as a prop
+        }
+
         const genAI = new GoogleGenerativeAI(geminiApiKey);
 
         try {
@@ -79,41 +89,41 @@ const SingleRecordDetails = () => {
                 You are a highly experienced medical expert specializing in report analysis and health recommendations. 
                 Analyze the uploaded medical report in detail and provide a structured response, covering the following aspects:
 
-                1. *Examination & Critical Health Indicators*  
+                1. Examination & Critical Health Indicators  
                 - Identify key health parameters and check for abnormalities.  
                 - Highlight any critical values that deviate from the normal range.  
                 - Provide a brief medical explanation of the abnormalities.  
 
-                2. *Summary & Health Implications*  
+                2. Summary & Health Implications  
                 - Summarize key findings in a patient-friendly way.  
                 - Explain potential health risks based on the report.  
 
-                3. *General Health Recommendations*  
+                3. General Health Recommendations  
                 - List do’s and don’ts based on report findings.  
                 - Suggest harmless home remedies for minor health concerns.  
                 - Advise whether a doctor visit is necessary and specify which specialist (e.g., Endocrinologist, Gynecologist, General Physician).  
 
-                4. *Condition-Specific Recommendations*  
-                - *For Diabetes:*  
-                    - Provide a *personalized diet plan* (recommended and restricted foods).  
-                    - Suggest a *safe and effective exercise routine*.  
-                    - Outline a *detailed treatment plan* (medications, lifestyle changes, monitoring strategies).  
+                4. Condition-Specific Recommendations  
+                - For Diabetes:  
+                    - Provide a personalized diet plan (recommended and restricted foods).  
+                    - Suggest a safe and effective exercise routine.  
+                    - Outline a detailed treatment plan (medications, lifestyle changes, monitoring strategies).  
                     - Recommend which doctor to visit and when, based on severity.  
                 
-                - *For PCOD:*  
-                    - Suggest a *balanced diet plan* focusing on hormonal balance, weight management, and insulin resistance.  
-                    - Provide an *exercise routine* that helps regulate menstrual cycles.  
-                    - Outline a *treatment plan* (lifestyle changes, supplements, medical interventions).  
-                    - Recommend a *gynecologist or endocrinologist*, based on the severity of symptoms.  
+                - For PCOD:  
+                    - Suggest a balanced diet plan focusing on hormonal balance, weight management, and insulin resistance.  
+                    - Provide an exercise routine that helps regulate menstrual cycles.  
+                    - Outline a treatment plan (lifestyle changes, supplements, medical interventions).  
+                    - Recommend a gynecologist or endocrinologist, based on the severity of symptoms.  
 
-                - *For Other Major Health Conditions:*  
+                - For Other Major Health Conditions:  
                     - Briefly explain the health issue and its implications.  
-                    - Suggest *precautionary tests or follow-up evaluations*.  
+                    - Suggest precautionary tests or follow-up evaluations.  
                     - Provide general health tips for maintaining well-being.  
 
-                5. *Urgency & Final Recommendations*  
-                - Clearly mention if the condition is severe and requires *immediate medical attention*.  
-                - Avoid medical jargon and ensure the analysis is *clear, actionable, and patient-friendly*.  
+                5. Urgency & Final Recommendations  
+                - Clearly mention if the condition is severe and requires immediate medical attention.  
+                - Avoid medical jargon and ensure the analysis is clear, actionable, and patient-friendly.  
                 `;
 
             const results = await model.generateContent([prompt, ...imageParts]);
@@ -148,17 +158,17 @@ const SingleRecordDetails = () => {
         const prompt = `
 
                     Your role is to be an AI-powered medical expert specializing in health management and structured treatment planning.  
-                    Using the provided medical report analysis ${analysisResult}, generate a *Kanban board* that helps users track their health management journey.  
+                    Using the provided medical report analysis ${analysisResult}, generate a Kanban board that helps users track their health management journey.  
 
-                    ### *Columns:*  
-                    - *Todo:* Initial tasks like consultations, tests, and starting lifestyle changes.  
-                    - *Work in Progress:* Ongoing tasks such as following treatment plans, monitoring health parameters, and lifestyle adjustments.  
-                    - *Done:* Completed tasks such as finishing a treatment phase, achieving health milestones, or stabilizing critical parameters.  
+                    ### Columns:  
+                    - Todo: Initial tasks like consultations, tests, and starting lifestyle changes.  
+                    - Work in Progress: Ongoing tasks such as following treatment plans, monitoring health parameters, and lifestyle adjustments.  
+                    - Done: Completed tasks such as finishing a treatment phase, achieving health milestones, or stabilizing critical parameters.  
 
-                    Each task should be categorized *based on the health condition and its stage. Ensure tasks include **clear, actionable steps* for the user to follow.  
+                    Each task should be categorized based on the health condition and its stage. Ensure tasks include **clear, actionable steps for the user to follow.  
 
-                    ### *Format:*  
-                    Provide the results in the following structured format for seamless front-end integration. *No extra quotations or formatting—just return the pure structure below:*  
+                    ### Format:  
+                    Provide the results in the following structured format for seamless front-end integration. No extra quotations or formatting—just return the pure structure below:  
 
                     {
                     "columns": [
