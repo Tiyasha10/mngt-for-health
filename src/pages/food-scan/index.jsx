@@ -1,134 +1,280 @@
-import { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { FiUpload, FiImage, FiXCircle, FiEdit, FiClock } from 'react-icons/fi';
+import { GiChefToque, GiCookingPot } from 'react-icons/gi';
 import NutritionResults from './components/NutritionResults';
-import Loader from '@/components/Loader';
+import UploadArea from './components/UploadArea';
+
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
 const FoodScanPage = () => {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [nutritionData, setNutritionData] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [healthierRecipe, setHealthierRecipe] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
-  const [foodText, setFoodText] = useState('');
+  const [inputMode, setInputMode] = useState('image');
 
-  const analyzeFood = async (e) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
-      setError(null);
-      setNutritionData(null);
-
-      if (!foodText.trim()) {
-        throw new Error('Please enter a food item');
+  const analysisPrompt = {
+    systemInstruction: "You are a professional nutritionist AI that analyzes food items and provides detailed nutritional information along with healthier recipe alternatives.",
+    imageAnalysis: `Analyze this food image and return JSON with:
+    {
+      "nutrition": {
+        "foodName": "string",
+        "calories": number,
+        "protein_g": number,
+        "fat_g": number,
+        "carbohydrates_g": number,
+        "sugar_g": number,
+        "fiber_g": number,
+        "sodium_mg": number,
+        "cholesterol_mg": number,
+        "serving_size_g": number
+      },
+      "healthierAlternative": {
+        "recipeName": "string",
+        "ingredients": [],
+        "instructions": [],
+        "nutritionalBenefits": []
       }
+    }`,
+    textAnalysis: `Analyze this food description: "{INPUT}" and return the same JSON structure as image analysis.`
+  };
 
-      const response = await fetch(
-        `https://api.api-ninjas.com/v1/nutrition?query=${encodeURIComponent(foodText)}`,
-        {
-          method: 'GET',
-          headers: {
-            'X-Api-Key': '2Ohe/R1YlLsGou+voNcmVw==gjr15YgoxstVMUZy',
-            'Content-Type': 'application/json'
-          }
-        }
+  const handleFileSelect = async (file) => {
+    if (!file) return;
+    
+    if (!file.type.match(/image\/(jpeg|png|webp)/)) {
+      setError('Supported formats: JPEG, PNG, WEBP');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('File size must be <5MB');
+      return;
+    }
+
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    setError(null);
+  };
+
+  const clearSelection = () => {
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setNutritionData(null);
+    setHealthierRecipe(null);
+    setError(null);
+  };
+
+  const analyzeInput = async (textInput = '') => {
+    try {
+      setIsProcessing(true);
+      setError(null);
+      
+      const model = genAI.getGenerativeModel(
+        { model: "gemini-1.5-pro" },
+        { systemInstruction: analysisPrompt.systemInstruction }
       );
 
-      if (!response.ok) throw new Error(`Error: ${response.status} ${response.statusText}`);
-      
-      const data = await response.json();
-      
-      if (!data.length) {
-        throw new Error('No nutrition data found for this food item');
-      }
+      const prompt = inputMode === 'image' 
+        ? analysisPrompt.imageAnalysis 
+        : analysisPrompt.textAnalysis.replace("{INPUT}", textInput);
 
-      setNutritionData({
-        foodName: foodText,
-        ...data[0] // API-Ninjas returns array of results
+      const contents = inputMode === 'image'
+        ? [
+            { text: prompt },
+            { 
+              inlineData: {
+                data: await convertToBase64(selectedFile),
+                mimeType: selectedFile.type
+              }
+            }
+          ]
+        : [{ text: prompt }];
+
+      const result = await model.generateContent({
+        contents: [{ parts: contents }]
       });
 
+      const text = result.response.text();
+      const data = parseResponse(text);
+
+      if (!validateResponse(data)) {
+        throw new Error('Invalid API response structure');
+      }
+
+      setNutritionData(data.nutrition);
+      setHealthierRecipe(data.healthierAlternative);
+
     } catch (err) {
-      setError(err.message || 'Failed to analyze food');
+      console.error('Analysis error:', err);
+      setError(err.message || 'Analysis failed. Please try again.');
     } finally {
-      setLoading(false);
+      setIsProcessing(false);
     }
   };
 
+  // Helper functions
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const parseResponse = (text) => {
+    try {
+      const jsonString = text.replace(/(```json|```)/g, '').trim();
+      return JSON.parse(jsonString);
+    } catch (err) {
+      throw new Error('Failed to parse API response');
+    }
+  };
+
+  const validateResponse = (data) => {
+    return data?.nutrition && data?.healthierAlternative;
+  };
+
   return (
-    <div className="min-h-screen p-6 max-w-4xl mx-auto dark:bg-gray-900">
+    <div className="min-h-screen p-6 max-w-4xl mx-auto bg-gradient-to-br from-orange-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
       <motion.h1 
-        initial={{ opacity: 0, y: 20 }}
+        className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent"
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent"
+        transition={{ delay: 0.2 }}
       >
-        Nutrition Analyzer 
+        <GiChefToque className="inline-block mr-3 mb-1" />
+        Culinary Nutrition Expert
       </motion.h1>
 
-      <motion.form 
-        onSubmit={analyzeFood}
-        className="mb-8 space-y-4"
+      <motion.div 
+        className="flex gap-4 mb-8 justify-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <div className="flex flex-col sm:flex-row gap-4">
-          <input
-            type="text"
-            value={foodText}
-            onChange={(e) => setFoodText(e.target.value)}
-            placeholder="Enter food item (e.g., '1 large apple')"
-            className="flex-1 p-4 rounded-lg border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            disabled={loading}
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+        {['image', 'text'].map((mode) => (
+          <motion.button
+            key={mode}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl ${
+              inputMode === mode 
+                ? 'bg-orange-600 text-white shadow-lg' 
+                : 'bg-white dark:bg-gray-700 shadow-md hover:shadow-lg'
+            }`}
+            onClick={() => setInputMode(mode)}
           >
-            {loading ? (
+            {mode === 'image' ? <FiImage /> : <FiEdit />}
+            {mode.charAt(0).toUpperCase() + mode.slice(1)}
+          </motion.button>
+        ))}
+      </motion.div>
+
+      {inputMode === 'image' ? (
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="relative"
+        >
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2">
+            <GiCookingPot className="text-4xl text-orange-500 animate-bounce" />
+          </div>
+          
+          <div className="border-2 border-dashed border-orange-200 dark:border-gray-700 rounded-xl p-6 bg-white dark:bg-gray-800">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleFileSelect(e.target.files[0])}
+              className="hidden"
+              id="fileInput"
+            />
+            <label htmlFor="fileInput" className="cursor-pointer block text-center">
+              {previewUrl ? (
+                <motion.img 
+                  src={previewUrl} 
+                  alt="Preview" 
+                  className="max-h-64 mx-auto rounded-lg mb-4 shadow-md"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                />
+              ) : (
+                <motion.div
+                  className="py-16 text-gray-500 dark:text-gray-400"
+                  initial={{ scale: 0.95 }}
+                  animate={{ scale: 1 }}
+                >
+                  <FiUpload className="w-12 h-12 mx-auto mb-4" />
+                  Click to upload food image
+                </motion.div>
+              )}
+            </label>
+            
+            {selectedFile && (
+              <motion.div
+                className="flex items-center justify-between mt-4 p-3 bg-orange-50 dark:bg-gray-700 rounded-lg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <span className="text-sm">{selectedFile.name}</span>
+                <button 
+                  onClick={clearSelection} 
+                  className="text-orange-600 hover:text-orange-700"
+                >
+                  <FiXCircle />
+                </button>
+              </motion.div>
+            )}
+          </div>
+
+          <motion.button
+            onClick={() => analyzeInput()}
+            disabled={!selectedFile || isProcessing}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full mt-6 bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-xl font-medium disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
+          >
+            {isProcessing ? (
               <>
-                <Loader className="w-5 h-5" />
-                <span>Analyzing...</span>
+                <FiClock className="animate-spin" />
+                Analyzing...
               </>
-            ) : 'Analyze'}
-          </button>
-        </div>
-        
-        <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-          Example: "200g grilled chicken breast", "1 medium banana", "2 slices pizza"
-        </p>
-      </motion.form>
+            ) : (
+              <>
+                <GiCookingPot />
+                Analyze Image and Generate Healthy Recipe you!!
+                Best of Luck dear :)
+              </>
+            )}
+          </motion.button>
+        </motion.div>
+      ) : (
+        <UploadArea 
+          onAnalyze={analyzeInput}
+          isProcessing={isProcessing}
+        />
+      )}
 
-      <AnimatePresence mode="wait">
-        {error && (
-          <motion.div
-            key="error"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="p-4 mb-4 text-red-700 bg-red-100 dark:bg-red-900/20 dark:text-red-400 rounded-lg"
-          >
-            ⚠️ {error}
-          </motion.div>
-        )}
+      {error && (
+        <motion.div
+          className="mt-6 p-4 bg-red-100 dark:bg-red-900/20 text-red-600 rounded-lg flex items-center gap-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <FiXCircle />
+          {error}
+        </motion.div>
+      )}
 
-        {nutritionData && (
-          <motion.div
-            key="results"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="space-y-6"
-          >
-            <NutritionResults data={nutritionData} />
-            <button
-              onClick={() => {
-                setNutritionData(null);
-                setFoodText('');
-              }}
-              className="w-full sm:w-auto px-6 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors"
-            >
-              ← Analyze another item
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <NutritionResults 
+        nutrition={nutritionData}
+        healthierRecipe={healthierRecipe}
+        isProcessing={isProcessing}
+      />
     </div>
   );
 };
