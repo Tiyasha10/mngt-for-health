@@ -21,7 +21,7 @@ const AnimatedProgressBar = ({
           {value} {unit}
         </span>
         <span className="text-orange-600 dark:text-orange-400">
-          {Math.round(percentage)}% DV
+          {Math.round(percentage)}% of Daily Value Goal
         </span>
       </div>
       <div className="h-2.5 bg-orange-100 dark:bg-gray-600 rounded-full overflow-hidden relative">

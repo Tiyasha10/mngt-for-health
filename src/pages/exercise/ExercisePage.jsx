@@ -202,10 +202,10 @@ const MedicalExercisePage = () => {
     return (
         <div className="min-h-screen w-full flex flex-col items-center bg-gray-900 text-gray-200 p-6">
             <div className="w-full max-w-6xl bg-gray-800 bg-opacity-90 shadow-lg rounded-lg p-8">
-                <h1 className="text-3xl font-bold text-blue-400 text-center mb-6">🏥 Medical Exercise Tracker</h1>
+                <h1 className="text-3xl font-bold text-blue-500 text-center mb-6">🏥 Medical Exercise Tracker</h1>
 
-                <div className="p-6 rounded-lg border border-blue-500 bg-gray-900">
-                    <h2 className="text-xl font-semibold text-blue-400 mb-4">🩺 Patient Information</h2>
+                <div className="p-6 rounded-lg border border-blue-400 bg-gray-900">
+                    <h2 className="text-xl font-semibold text-blue-300 mb-4">🩺 Patient Information</h2>
 
                     <div className="grid grid-cols-2 gap-4">
                         {["height", "weight"].map((field) => (

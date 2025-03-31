@@ -7,4 +7,5 @@ import loader from "./loader.svg";
 //import user from "./user.svg";
 //import apps from "./apps.svg";
 import records from "./records.svg";
+
 export { sun, search,menu, loader, records };

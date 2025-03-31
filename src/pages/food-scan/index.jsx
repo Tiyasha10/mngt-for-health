@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { FiUpload, FiImage, FiXCircle, FiEdit, FiClock } from 'react-icons/fi';
+import { FiUpload, FiImage, FiXCircle, FiClock } from 'react-icons/fi';
 import { GiChefToque, GiCookingPot } from 'react-icons/gi';
 import NutritionResults from './components/NutritionResults';
-import UploadArea from './components/UploadArea';
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
@@ -15,7 +14,6 @@ const FoodScanPage = () => {
   const [healthierRecipe, setHealthierRecipe] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
-  const [inputMode, setInputMode] = useState('image');
 
   const analysisPrompt = {
     systemInstruction: "You are a professional nutritionist AI that analyzes food items and provides detailed nutritional information along with healthier recipe alternatives.",
@@ -39,8 +37,7 @@ const FoodScanPage = () => {
         "instructions": [],
         "nutritionalBenefits": []
       }
-    }`,
-    textAnalysis: `Analyze this food description: "{INPUT}" and return the same JSON structure as image analysis.`
+    }`
   };
 
   const handleFileSelect = async (file) => {
@@ -69,7 +66,7 @@ const FoodScanPage = () => {
     setError(null);
   };
 
-  const analyzeInput = async (textInput = '') => {
+  const analyzeInput = async () => {
     try {
       setIsProcessing(true);
       setError(null);
@@ -79,21 +76,15 @@ const FoodScanPage = () => {
         { systemInstruction: analysisPrompt.systemInstruction }
       );
 
-      const prompt = inputMode === 'image' 
-        ? analysisPrompt.imageAnalysis 
-        : analysisPrompt.textAnalysis.replace("{INPUT}", textInput);
-
-      const contents = inputMode === 'image'
-        ? [
-            { text: prompt },
-            { 
-              inlineData: {
-                data: await convertToBase64(selectedFile),
-                mimeType: selectedFile.type
-              }
-            }
-          ]
-        : [{ text: prompt }];
+      const contents = [
+        { text: analysisPrompt.imageAnalysis },
+        { 
+          inlineData: {
+            data: await convertToBase64(selectedFile),
+            mimeType: selectedFile.type
+          }
+        }
+      ];
 
       const result = await model.generateContent({
         contents: [{ parts: contents }]
@@ -152,112 +143,81 @@ const FoodScanPage = () => {
         Culinary Nutrition Expert
       </motion.h1>
 
-      <motion.div 
-        className="flex gap-4 mb-8 justify-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="relative"
       >
-        {['image', 'text'].map((mode) => (
-          <motion.button
-            key={mode}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl ${
-              inputMode === mode 
-                ? 'bg-orange-600 text-white shadow-lg' 
-                : 'bg-white dark:bg-gray-700 shadow-md hover:shadow-lg'
-            }`}
-            onClick={() => setInputMode(mode)}
-          >
-            {mode === 'image' ? <FiImage /> : <FiEdit />}
-            {mode.charAt(0).toUpperCase() + mode.slice(1)}
-          </motion.button>
-        ))}
-      </motion.div>
-
-      {inputMode === 'image' ? (
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="relative"
-        >
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2">
-            <GiCookingPot className="text-4xl text-orange-500 animate-bounce" />
-          </div>
-          
-          <div className="border-2 border-dashed border-orange-200 dark:border-gray-700 rounded-xl p-6 bg-white dark:bg-gray-800">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleFileSelect(e.target.files[0])}
-              className="hidden"
-              id="fileInput"
-            />
-            <label htmlFor="fileInput" className="cursor-pointer block text-center">
-              {previewUrl ? (
-                <motion.img 
-                  src={previewUrl} 
-                  alt="Preview" 
-                  className="max-h-64 mx-auto rounded-lg mb-4 shadow-md"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                />
-              ) : (
-                <motion.div
-                  className="py-16 text-gray-500 dark:text-gray-400"
-                  initial={{ scale: 0.95 }}
-                  animate={{ scale: 1 }}
-                >
-                  <FiUpload className="w-12 h-12 mx-auto mb-4" />
-                  Click to upload food image
-                </motion.div>
-              )}
-            </label>
-            
-            {selectedFile && (
-              <motion.div
-                className="flex items-center justify-between mt-4 p-3 bg-orange-50 dark:bg-gray-700 rounded-lg"
+        <div className="absolute -top-8 left-1/2 -translate-x-1/2">
+          <GiCookingPot className="text-4xl text-orange-500 animate-bounce" />
+        </div>
+        
+        <div className="border-2 border-dashed border-orange-200 dark:border-gray-700 rounded-xl p-6 bg-white dark:bg-gray-800">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleFileSelect(e.target.files[0])}
+            className="hidden"
+            id="fileInput"
+          />
+          <label htmlFor="fileInput" className="cursor-pointer block text-center">
+            {previewUrl ? (
+              <motion.img 
+                src={previewUrl} 
+                alt="Preview" 
+                className="max-h-64 mx-auto rounded-lg mb-4 shadow-md"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
+              />
+            ) : (
+              <motion.div
+                className="py-16 text-gray-500 dark:text-gray-400"
+                initial={{ scale: 0.95 }}
+                animate={{ scale: 1 }}
               >
-                <span className="text-sm">{selectedFile.name}</span>
-                <button 
-                  onClick={clearSelection} 
-                  className="text-orange-600 hover:text-orange-700"
-                >
-                  <FiXCircle />
-                </button>
+                <FiUpload className="w-12 h-12 mx-auto mb-4" />
+                Click to upload food image
               </motion.div>
             )}
-          </div>
+          </label>
+          
+          {selectedFile && (
+            <motion.div
+              className="flex items-center justify-between mt-4 p-3 bg-orange-50 dark:bg-gray-700 rounded-lg"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <span className="text-sm">{selectedFile.name}</span>
+              <button 
+                onClick={clearSelection} 
+                className="text-orange-600 hover:text-orange-700"
+              >
+                <FiXCircle />
+              </button>
+            </motion.div>
+          )}
+        </div>
 
-          <motion.button
-            onClick={() => analyzeInput()}
-            disabled={!selectedFile || isProcessing}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full mt-6 bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-xl font-medium disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
-          >
-            {isProcessing ? (
-              <>
-                <FiClock className="animate-spin" />
-                Analyzing...
-              </>
-            ) : (
-              <>
-                <GiCookingPot />
-                Analyze Image and Generate Healthy Recipe you!!
-                Best of Luck dear :)
-              </>
-            )}
-          </motion.button>
-        </motion.div>
-      ) : (
-        <UploadArea 
-          onAnalyze={analyzeInput}
-          isProcessing={isProcessing}
-        />
-      )}
+        <motion.button
+          onClick={analyzeInput}
+          disabled={!selectedFile || isProcessing}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full mt-6 bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-xl font-medium disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
+        >
+          {isProcessing ? (
+            <>
+              <FiClock className="animate-spin" />
+              Analyzing...
+            </>
+          ) : (
+            <>
+              <GiCookingPot />
+              Analyze Image and Generate Healthy Recipe
+            </>
+          )}
+        </motion.button>
+      </motion.div>
 
       {error && (
         <motion.div

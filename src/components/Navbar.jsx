@@ -51,7 +51,7 @@ const Navbar = () => {
       {/* Wellness 360 Title with ECG Icon */}
       <div className="flex items-center lg:flex-1 justify-start pl-6">
         <div className="flex items-center gap-3 transform hover:scale-105 transition-all duration-300">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 
+          <h1 className="text-5xl font-bold bg-gradient-to-r  from-blue-500  via-green-600 to-green-700 
                         bg-clip-text text-transparent animate-gradient-x leading-tight py-2">
             Wellness 360
           </h1>

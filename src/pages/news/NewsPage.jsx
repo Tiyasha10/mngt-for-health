@@ -110,12 +110,12 @@ const NewsPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Enhanced Header */}
         <div className="text-center mb-16 space-y-6">
-          <h1 className="text-5xl font-extrabold mb-4 font-epilogue bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent 
+          <h1 className="text-5xl font-extrabold mb-4 font-epilogue bg-gradient-to-r from-red-700 via-pink-500  to-pink-800 bg-clip-text text-transparent 
               animate-gradient-x hover:scale-105 transition-transform duration-300">
             Health Pulse
           </h1>
-          <p className="text-xl text-gray-300 font-poppins font-medium max-w-2xl mx-auto leading-relaxed 
-              hover:text-gray-100 transition-colors duration-300 hover:drop-shadow-glow">
+          <p className="text-xl text-gray-300 text-red-300 font-poppins font-medium max-w-2xl mx-auto leading-relaxed 
+              hover:text-gray-100 transition-colors duration-300 hover:drop-shadow-glow ">
             Cutting-edge medical discoveries & essential health guidance
           </p>
         </div>

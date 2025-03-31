@@ -46,13 +46,13 @@ const PastRecordsGrid = ({ records, onDelete }) => {
       <table className="w-full border-collapse bg-columnBackgroundColor">
         <thead>
           <tr className="bg-gray-800 text-neonGreen">
-            <th className="p-4 font-epilogue">Height (cm)</th>
-            <th className="p-4 font-epilogue">Weight (kg)</th>
-            <th className="p-4 font-epilogue">Sex</th>
-            <th className="p-4 font-epilogue">BMI</th>
-            <th className="p-4 font-epilogue">Category</th>
-            <th className="p-4 font-epilogue">Date</th>
-            <th className="p-4 font-epilogue">Actions</th>
+            <th className="p-4 font-epilogue text-center pl-6">Height (cm)</th>
+            <th className="p-4 font-epilogue text-center">Weight (kg)</th>
+            <th className="p-4 font-epilogue text-center">Sex</th>
+            <th className="p-4 font-epilogue text-center">BMI</th>
+            <th className="p-4 font-epilogue text-center">Category</th>
+            <th className="p-4 font-epilogue text-center">Date</th>
+            <th className="p-4 font-epilogue text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -62,19 +62,19 @@ const PastRecordsGrid = ({ records, onDelete }) => {
               variants={rowVariants}
               className="border-t border-gray-700 group hover:bg-gray-800/30 transition-colors"
             >
-              <td className="p-4 text-gray-300 font-poppins">{record.height}</td>
-              <td className="p-4 text-gray-300 font-poppins">{record.weight}</td>
-              <td className="p-4 text-gray-300 font-poppins">{record.sex}</td>
-              <td className="p-4 text-neonGreen font-semibold">{record.bmi}</td>
-              <td className="p-4">
-                <span className={`px-3 py-1 rounded-full text-sm font-poppins ${getCategoryStyle(record.category)}`}>
+              <td className="p-4 text-gray-300 font-poppins text-center pl-6">{record.height}</td>
+              <td className="p-4 text-gray-300 font-poppins text-center">{record.weight}</td>
+              <td className="p-4 text-gray-300 font-poppins text-center">{record.sex}</td>
+              <td className="p-4 text-neonGreen font-semibold text-center">{record.bmi}</td>
+              <td className="p-4 text-center">
+                <span className={`px-3 py-1 rounded-full text-sm font-poppins inline-block ${getCategoryStyle(record.category)}`}>
                   {record.category}
                 </span>
               </td>
-              <td className="p-4 text-gray-400 font-poppins">
+              <td className="p-4 text-gray-400 font-poppins text-center">
                 {new Date(record.createdAt).toLocaleDateString()}
               </td>
-              <td className="p-4">
+              <td className="p-4 text-center">
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}

@@ -1,9 +1,20 @@
-import React, { useState } from "react";
-
-import { DisplayInfo } from "../components";
+import React from "react";
+import HealthHero from '../components/HealthHero';
+import DisplayInfo from '../components/DisplayInfo';
+import { usePrivy } from "@privy-io/react-auth";
 
 const Home = () => {
-  return <DisplayInfo />;
+  const { authenticated } = usePrivy();
+  
+  return (
+    <div className="min-h-screen">
+      {!authenticated ? (
+        <HealthHero />
+      ) : (
+        <DisplayInfo />
+      )}
+    </div>
+  );
 };
 
 export default Home;
