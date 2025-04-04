@@ -1,5 +1,3 @@
-//original code
-
 import { IconChevronRight, IconFileUpload, IconProgress } from "@tabler/icons-react";
 import React, { useState } from "react";
 import RecordDetailsHeader from "./components/record-detail-header";
@@ -10,23 +8,18 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import RactMarkdown from "react-markdown";
 import { useKanban } from "../../context/KanbanContext";
 
-//import ScreeningSchedule from "../ScreeningSchedule";
-
 const SingleRecordDetails = () => {
     const { resetKanbanBoard } = useKanban();
     const geminiApiKey= import.meta.env.VITE_GEMINI_API_KEY;
-    const { state } = useLocation(); // ✅ Ensure state is not null
-    const [analysisResult, setAnalysisResult] = useState(state?.analysisResult || "",
-    );
-    //console.log(state);
-
+    const { state } = useLocation();
+    const [analysisResult, setAnalysisResult] = useState(state?.analysisResult || "");
+    
     const navigate = useNavigate();
     const [file, setFile] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [uploadSuccess, setUploadSuccess] = useState(false);
     const [processing, setProcessing] = useState(false);
    
-    
     const [filename, setFilename] = useState("");
     const [filetype, setFileType] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,7 +34,6 @@ const SingleRecordDetails = () => {
         setIsModalOpen(false);
     };
 
-
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         if (!selectedFile) return;
@@ -54,17 +46,15 @@ const SingleRecordDetails = () => {
     const readFileBase64 = (file) => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload = () => resolve(reader.result.split(",")[1]); // Fix split issue
+            reader.onload = () => resolve(reader.result.split(",")[1]);
             reader.onerror = reject;
             reader.readAsDataURL(file);
         });
     };
 
-    // Add this function to SingleRecordDetails component
     const viewOriginalReport = () => {
         if (!state.originalFile || !state.fileType) return;
         
-        // Create a blob URL for the file
         const byteCharacters = atob(state.originalFile);
         const byteNumbers = new Array(byteCharacters.length);
         for (let i = 0; i < byteCharacters.length; i++) {
@@ -74,7 +64,6 @@ const SingleRecordDetails = () => {
         const blob = new Blob([byteArray], { type: state.fileType });
         const url = URL.createObjectURL(blob);
     
-        // Open in new tab or display in modal
         window.open(url, '_blank');
     };
 
@@ -84,14 +73,12 @@ const SingleRecordDetails = () => {
         setUploading(true);
         setUploadSuccess(false);
 
-        // Reset Kanban board state when a new report is uploaded
         if (resetKanbanBoard) {
-            resetKanbanBoard(state.id); // Call the reset function passed as a prop
+            resetKanbanBoard(state.id);
         }
 
         const genAI = new GoogleGenerativeAI(geminiApiKey);
 
-        // In handleFileUpload function, before the try block:
         const base64 = await readFileBase64(file);
 
         try {
@@ -120,7 +107,7 @@ const SingleRecordDetails = () => {
                 - Explain potential health risks based on the report.  
 
                 3. General Health Recommendations  
-                - List do’s and don’ts based on report findings.  
+                - List do's and don'ts based on report findings.  
                 - Suggest harmless home remedies for minor health concerns.  
                 - Advise whether a doctor visit is necessary and specify which specialist (e.g., Endocrinologist, Gynecologist, General Physician).  
 
@@ -156,8 +143,8 @@ const SingleRecordDetails = () => {
                 documentID: state.id,
                 analysisResult: text,
                 kanbanRecords: "",
-                originalFile: base64, // Add this
-                fileType: filetype,   // Add this
+                originalFile: base64,
+                fileType: filetype,
             });
 
             setUploadSuccess(true);
@@ -218,7 +205,6 @@ const SingleRecordDetails = () => {
                         const text = response.text();
                         const parsedResponse = JSON.parse(text);
                 
-                        // Ensure updateRecord is available before using it
                         if (typeof updateRecord === "function") {
                             await updateRecord({
                                 documentID: state.id,
@@ -228,17 +214,17 @@ const SingleRecordDetails = () => {
                             console.error("updateRecord function is not available");
                         }
                 
-                        // In your processTreatmentPlan function:
-                            // In your processTreatmentPlan function:
-                            // In your processTreatmentPlan function:
-                            // In SingleRecordDetails.jsx's processTreatmentPlan
-                            navigate(`/record-board/${state.id}`, { 
-                                state: {
-                                id: state.id,
-                                columns: parsedResponse.columns,
-                                tasks: parsedResponse.tasks
-                                } 
-                            });
+                        navigate(`/record-board/${state.id}`, { 
+                            state: {
+                            id: state.id,
+                            columns: parsedResponse.columns || [
+                                { id: "todo", title: "Todo" },
+                                { id: "doing", title: "Work in Progress" },
+                                { id: "done", title: "Done" }
+                            ],
+                            tasks: parsedResponse.tasks || []
+                            } 
+                        });
 
                     } catch (error) {
                         console.error("Error processing treatment plan:", error);
@@ -288,19 +274,36 @@ const SingleRecordDetails = () => {
                                     <h2 className="text-xl font-semibold text-neutral-200">
                                         Personalized AI-Driven Treatment Plan
                                     </h2>
-                                    <p className="text-sm text-gray-600 dark:text-neutral-400">
+                                    <p className="text-sm text-gray-400">
                                         A tailored medical strategy leveraging advanced AI insights.
                                     </p>
                                 </div>
 
-                                <div className="flex w-full flex-col px-6 py-4 text-white">
+                                <div className="flex w-full flex-col px-6 py-4">
                                     <div>
-                                        <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+                                        <h2 className="text-lg font-semibold text-blue-300 mb-4">
                                             Analysis Result
                                         </h2>
-                                        <div className="space-y-2"><RactMarkdown>{analysisResult}</RactMarkdown></div>
+                                        <div className="markdown-content">
+                                            <RactMarkdown
+                                                components={{
+                                                    h1: ({node, ...props}) => <h1 className="text-2xl font-bold mb-4 mt-6 text-teal-400" {...props} />,
+                                                    h2: ({node, ...props}) => <h2 className="text-xl font-semibold mb-3 mt-5 text-teal-300 border-b border-teal-800 pb-2" {...props} />,
+                                                    h3: ({node, ...props}) => <h3 className="text-lg font-medium mb-2 mt-4 text-teal-200" {...props} />,
+                                                    p: ({node, ...props}) => <p className="mb-4 leading-relaxed text-gray-300" {...props} />,
+                                                    ul: ({node, ...props}) => <ul className="list-disc pl-6 mb-4 space-y-2 text-gray-300" {...props} />,
+                                                    ol: ({node, ...props}) => <ol className="list-decimal pl-6 mb-4 space-y-2 text-gray-300" {...props} />,
+                                                    li: ({node, ...props}) => <li className="mb-1.5" {...props} />,
+                                                    strong: ({node, ...props}) => <strong className="font-semibold text-amber-300" {...props} />,
+                                                    em: ({node, ...props}) => <em className="italic text-amber-200" {...props} />,
+                                                    a: ({node, ...props}) => <a className="text-blue-400 hover:text-blue-300 underline" {...props} />,
+                                                    blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-teal-500 pl-4 my-4 text-gray-300 italic" {...props} />,
+                                                }}
+                                            >
+                                                {analysisResult}
+                                            </RactMarkdown>
+                                        </div>
                                     </div>
-
                                     <div className="mt-5 grid gap-2 sm:flex">
                                         <button
                                             type="button"

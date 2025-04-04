@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
@@ -12,18 +12,28 @@ import { KanbanProvider } from "./context/KanbanContext";
 import MedicalExercisePage from "./pages/exercise/ExercisePage";
 import NewsPage from "./pages/news/NewsPage";
 import FoodScanPage from "./pages/food-scan/index";
+import HealthHero from "./components/HealthHero";
 
 const App = () => {
     const {currentUser} = useStateContext();
     const {user, authenticated, ready, login} = usePrivy();
     const navigate = useNavigate();
 
+    const handleLogoClick = useCallback(() => {
+        navigate("/welcome");
+    }, [navigate]);
+
     useEffect(() => {
         if (ready && !authenticated) {
-            // Don't auto-login immediately - let users see HealthHero first
-            // login(); // Commented out to show HealthHero first
+            // Don't auto-login immediately
         } else if (user && !currentUser) {
             navigate("/onboarding");
+        } else if (authenticated) {
+            const postLoginRoute = localStorage.getItem('postLoginRoute');
+            if (postLoginRoute) {
+                navigate(postLoginRoute);
+                localStorage.removeItem('postLoginRoute');
+            }
         }
     }, [ready, currentUser, navigate, authenticated, user]);
     
@@ -37,9 +47,10 @@ const App = () => {
             )}
 
             <div className="mx-auto max-w-[1280px] flex-1 max-sm:w-full sm:pr-5">
-                {authenticated && <Navbar/>}
+                {authenticated && <Navbar onLogoClick={handleLogoClick}/>}
                 <Routes>
-                    <Route path="/" element={<Home/>}/>
+                <Route path="/welcome" element={<HealthHero />} />
+                <Route path="/" element={<Home />} />
                     <Route path="/profile" element={<Profile/>}/>
                     <Route path="/onboarding" element={<Onboarding/>}/>
                     <Route path="/medical-records" element={<MedicalRecord/>}/>

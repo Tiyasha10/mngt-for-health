@@ -10,12 +10,12 @@ import {
   IconCamera,
   IconX
 } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
 
 function HealthHero() {
   const { login, authenticated } = usePrivy();
   const [activeFeature, setActiveFeature] = useState(null);
-
-  if (authenticated) return null;
+  const navigate = useNavigate();
 
   // Feature details data
   const featureDetails = {
@@ -24,44 +24,78 @@ function HealthHero() {
       description: "Connect with others on similar health journeys",
       longDescription: "Our community hub allows you to connect with others facing similar health challenges. Join support groups, participate in discussions, and share your experiences in a safe, moderated environment. Features include private messaging and topic-based forums.",
       icon: <IconUsersGroup size={40} />,
-      color: "purple"
+      color: "purple",
+      route:"/"
     },
     analysis: {
       title: "Report Analysis",
       description: "AI-powered insights for your medical reports",
       longDescription: "Upload your medical reports and receive instant AI-powered analysis. Our system identifies key health indicators, explains medical terminology in simple language, and highlights areas that may need attention. Track changes over time and get personalized recommendations based on your results.",
       icon: <IconReportMedical size={40} />,
-      color: "yellow"
+      color: "blue",
+      route:"/medical-records"
     },
     journal: {
       title: "Health Journal",
       description: "Track symptoms, medications and daily notes",
       longDescription: "Maintain a comprehensive health journal to track symptoms, medications, appointments, and daily notes. Set reminders for medications, log side effects, and generate printable reports for your healthcare providers. Visualize trends in your health data over time.",
       icon: <IconNotebook size={40} />,
-      color: "green"
+      color: "green",
+      route:"/personal-board"
     },
     exercise: {
       title: "Exercise Plans",
       description: "Personalized workouts for your condition",
       longDescription: "Get customized exercise plans tailored to your specific health conditions and fitness level. Our plans include video demonstrations, adaptive difficulty levels, and progress tracking. Specialized routines available for rehabilitation, chronic conditions, and general wellness.",
       icon: <IconRun size={40} />,
-      color: "blue"
+      color: "orange",
+      route:"/exercise"
     },
     news: {
       title: "Health News",
       description: "Curated medical updates and research",
       longDescription: "Stay informed with our carefully curated health news feed. We filter through the latest medical research, breaking health news, and wellness trends to bring you reliable, evidence-based information. Customize your feed based on your health interests and conditions.",
       icon: <IconNews size={40} />,
-      color: "red"
+      color: "red",
+      route:"/news"
     },
     nutrition: {
       title: "Nutrition Scanner",
       description: "Scan food items for dietary analysis",
       longDescription: "Use your camera to scan food packaging and instantly get detailed nutritional analysis. Our system identifies potential allergens, tracks macronutrients, and suggests healthier alternatives based on your dietary needs and health goals. Works with both packaged and whole foods.",
       icon: <IconCamera size={40} />,
-      color: "orange"
+      color: "yellow",
+      route:"/food-scan"
     }
   };
+
+  const handleMainLogin = async () => {
+    if (authenticated) {
+        navigate("/profile");
+    } else {
+        try {
+            await login();
+            localStorage.setItem('postLoginRoute', "/profile");
+        } catch (error) {
+            console.error('Login error:', error);
+        }
+    }
+};
+
+// Modified handleFeatureLogin - goes directly to route if authenticated
+const handleFeatureLogin = async (route) => {
+    if (authenticated) {
+        navigate(route);
+    } else {
+        try {
+            await login();
+            localStorage.setItem('postLoginRoute', route);
+        } catch (error) {
+            console.error('Login error:', error);
+        }
+    }
+};
+   
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center px-4 py-16 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-[#0f0f15] dark:to-[#1a1a25]">
@@ -78,16 +112,15 @@ function HealthHero() {
           <div className="flex flex-col items-center gap-6">
             <div className="flex items-center gap-3">
               <IconHeartbeat size={60} className="text-[#1dc071] animate-pulse" />
-              <h1 className="text-5xl font-bold bg-gradient-to-r  from-blue-500  via-green-600 to-green-700 
-                        bg-clip-text text-transparent animate-gradient-x leading-tight py-2">
-            Wellness 360
-          </h1>
+              <h1 className="font-bold text-5xl md:text-6xl bg-gradient-to-r from-[#1dc071] to-[#8c6dfd] bg-clip-text text-transparent">
+                Wellness 360°
+              </h1>
             </div>
             <p className="text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
               Your comprehensive health companion for a balanced lifestyle and empowered wellness journey.
             </p>
             <button
-              onClick={login}
+              onClick={handleMainLogin}
               className="px-8 py-3 bg-gradient-to-r from-[#1dc071] to-[#8c6dfd] text-white rounded-xl hover:shadow-lg transition-all shadow-md hover:scale-105 transform-gpu"
             >
               Get Started / Login
@@ -134,12 +167,14 @@ function HealthHero() {
                 {featureDetails[activeFeature].longDescription}
               </p>
               
-              <button
-                onClick={login}
-                className={`px-6 py-2 bg-gradient-to-r ${colorClasses[featureDetails[activeFeature].color]} text-white rounded-lg hover:shadow-lg transition-all`}
-              >
-                Get Started
-              </button>
+              <div className="flex justify-center">
+                <button
+                  onClick={() => handleFeatureLogin(featureDetails[activeFeature].route)}
+                  className={`px-6 py-2 bg-gradient-to-r ${colorClasses[featureDetails[activeFeature].color]} text-white rounded-lg hover:shadow-lg transition-all`}
+                >
+                  Get Started
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -151,21 +186,22 @@ function HealthHero() {
 // Color classes mapping
 const colorClasses = {
   purple: 'from-purple-500 to-pink-500',
-  yellow: 'from-yellow-500 to-amber-600',
-  green: 'from-green-600 to-emerald-700',
-  blue: 'from-blue-600 to-cyan-500',
-  red: 'from-red-600 to-pink-500',
-  orange: 'from-orange-600 to-amber-500'
+  blue: 'from-blue-500 to-cyan-500',
+  green: 'from-green-500 to-emerald-500',
+  orange: 'from-orange-500 to-amber-500',
+  red: 'from-red-500 to-pink-500',
+  yellow: 'from-yellow-500 to-amber-500'
 };
 
 // FlashCard Component
+// Updated FlashCard Component - Removed the standalone Get Started button
 const FlashCard = ({ feature, onClick, delay }) => {
   return (
     <div 
       className={`relative overflow-hidden rounded-xl p-6 bg-white dark:bg-[#1e1e2a] border border-gray-200/50 dark:border-gray-700/50 h-full flex flex-col items-center text-center transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:z-10 group`}
       style={{ 
         animation: `fadeInUp 0.5s ease-out ${delay} both`,
-        transformStyle: `preserve-3d`
+        transformStyle: 'preserve-3d'
       }}
     >
       <div className={`absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 bg-gradient-to-r ${colorClasses[feature.color]} transition-opacity duration-300 -z-10`}></div>
@@ -198,7 +234,7 @@ const FlashCard = ({ feature, onClick, delay }) => {
       </div>
     </div>
   );
-};
+}
 
 // Global styles
 const globalStyles = `

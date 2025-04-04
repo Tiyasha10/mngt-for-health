@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { FiUpload, FiImage, FiXCircle, FiClock } from 'react-icons/fi';
+import { FiUpload, FiXCircle, FiClock } from 'react-icons/fi';
 import { GiChefToque, GiCookingPot } from 'react-icons/gi';
 import NutritionResults from './components/NutritionResults';
 
@@ -16,7 +16,7 @@ const FoodScanPage = () => {
   const [error, setError] = useState(null);
 
   const analysisPrompt = {
-    systemInstruction: "You are a professional nutritionist AI that analyzes food items and provides detailed nutritional information along with healthier recipe alternatives.",
+    systemInstruction: "You are a professional nutritionist AI that analyzes food items and provides detailed nutritional information along with healthier recipe alternatives. Always return valid JSON format with the specified structure.",
     imageAnalysis: `Analyze this food image and return JSON with:
     {
       "nutrition": {
@@ -71,23 +71,32 @@ const FoodScanPage = () => {
       setIsProcessing(true);
       setError(null);
       
-      const model = genAI.getGenerativeModel(
-        { model: "gemini-1.5-pro" },
-        { systemInstruction: analysisPrompt.systemInstruction }
-      );
+      // Add slight delay to prevent API abuse
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+      });
+
+      const combinedPrompt = `${analysisPrompt.systemInstruction}\n\n${analysisPrompt.imageAnalysis}`;
 
       const contents = [
-        { text: analysisPrompt.imageAnalysis },
         { 
-          inlineData: {
-            data: await convertToBase64(selectedFile),
-            mimeType: selectedFile.type
-          }
+          role: "user",
+          parts: [
+            { text: combinedPrompt },
+            { 
+              inlineData: {
+                data: await convertToBase64(selectedFile),
+                mimeType: selectedFile.type
+              }
+            }
+          ]
         }
       ];
 
       const result = await model.generateContent({
-        contents: [{ parts: contents }]
+        contents
       });
 
       const text = result.response.text();
@@ -120,15 +129,19 @@ const FoodScanPage = () => {
 
   const parseResponse = (text) => {
     try {
-      const jsonString = text.replace(/(```json|```)/g, '').trim();
+      // More robust JSON extraction
+      const jsonStart = text.indexOf('{');
+      const jsonEnd = text.lastIndexOf('}') + 1;
+      const jsonString = text.slice(jsonStart, jsonEnd);
       return JSON.parse(jsonString);
     } catch (err) {
-      throw new Error('Failed to parse API response');
+      throw new Error('Failed to parse API response: ' + err.message);
     }
   };
 
   const validateResponse = (data) => {
-    return data?.nutrition && data?.healthierAlternative;
+    return data?.nutrition?.foodName && 
+           data?.healthierAlternative?.recipeName;
   };
 
   return (

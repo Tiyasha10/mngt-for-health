@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaDumbbell } from "react-icons/fa";
 import PastRecordsGrid from "./components/PastRecordsGrid";
 
-const API_KEY = "87e45d4bccmsh67dcaaf97a5ef70p16cfe4jsn3f559836a95c";
+const API_KEY = import.meta.env.VITE_RAPID_EXERCISEDB_API_KEY;
 const API_URL = "https://exercisedb.p.rapidapi.com/exercises/bodyPart/";
 
 

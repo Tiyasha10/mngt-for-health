@@ -170,6 +170,7 @@ const DisplayInfo = () => {
                 >
                   <option value="pcod" className="bg-white dark:bg-[#252535]">PCOD</option>
                   <option value="diabetes" className="bg-white dark:bg-[#252535]">Diabetes</option>
+                  <option value="general topic" className="bg-white dark:bg-[#252535]">General Topic</option>
                 </select>
                 <button
                   onClick={handleCreatePost}
