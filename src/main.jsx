@@ -9,7 +9,7 @@ import { StateContextProvider } from './context/index';
 const root= ReactDOM.createRoot(document.getElementById("root"));
 root.render(
     <PrivyProvider
-      appId="cm6qcinn4036k10jmwprnkfki"
+    appId={import.meta.env.VITE_PRIVY_APP_ID}
       config={{
         // Customize Privy's appearance in your app
         appearance: {
