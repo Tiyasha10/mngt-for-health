@@ -30,26 +30,24 @@ app.use("/api", postsRoutes);
 
 const PORT = process.env.PORT || 5000;
 
-// Add this route before app.listen()
+// Change the environment variable name to something simpler
+const apiKey = process.env.NEWS_API_KEY || process.env.VITE_RAPID_NEWORG_API_KEY;
+
+if (!apiKey) {
+  console.error('FATAL: NewsAPI key not found in environment variables');
+  process.exit(1); // Crash the app if no API key
+}
+
 app.get('/api/news', async (req, res) => {
   try {
-    // Debug: Log the API key being used
-    console.log('Using NewsAPI key:', process.env.VITE_RAPID_NEWORG_API_KEY ? 'Exists' : 'Missing');
+    console.log('Using NewsAPI key:', apiKey ? 'Exists' : 'Missing');
     
-    const apiKey = process.env.VITE_RAPID_NEWORG_API_KEY;
-    if (!apiKey) {
-      throw new Error('NewsAPI key not configured in environment variables');
-    }
-
     const response = await axios.get('https://newsapi.org/v2/top-headlines', {
       params: {
         category: 'health',
         country: 'us',
         pageSize: 20,
-        apiKey: apiKey // Add as query parameter
-      },
-      headers: {
-        'X-Api-Key': apiKey // Also include in headers
+        apiKey: apiKey
       }
     });
 
@@ -59,9 +57,8 @@ app.get('/api/news', async (req, res) => {
 
     res.json(response.data);
   } catch (error) {
-    console.error('Detailed NewsAPI error:', {
+    console.error('NewsAPI request failed:', {
       message: error.message,
-      config: error.config,
       response: error.response?.data
     });
     
