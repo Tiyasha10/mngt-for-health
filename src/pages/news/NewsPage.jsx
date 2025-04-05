@@ -7,47 +7,37 @@ const NewsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const NEWS_API_CONFIG = {
-    url: 'https://newsapi.org/v2/top-headlines',
-    params: {
-      category: 'health',
-      country: 'us',
-      pageSize: 20,
-      apiKey: import.meta.env.VITE_RAPID_NEWORG_API_KEY
-    }
-  };
-
   useEffect(() => {
     const fetchNews = async () => {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/news`);
         
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const data = await response.json(); // Always parse JSON first
         
+        if (!response.ok) {
+          throw new Error(data.error || data.message || `HTTP error! status: ${response.status}`);
+        }
+  
         if (!data.articles) {
           throw new Error('No articles found in response');
         }
-
+  
         const articlesWithIds = data.articles.map((article, index) => ({
           ...article,
           id: `${article.publishedAt}-${index}`,
           votes: parseInt(localStorage.getItem(`votes-${article.title}`)) || 0
         }));
-
+  
         setArticles(articlesWithIds);
+        setError(null);
       } catch (error) {
-        console.error('Full fetch error:', error);
+        console.error('Fetch error details:', error);
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchNews();
   }, []);
 

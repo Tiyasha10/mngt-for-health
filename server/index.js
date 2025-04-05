@@ -33,34 +33,36 @@ const PORT = process.env.PORT || 5000;
 // Add this route before app.listen()
 app.get('/api/news', async (req, res) => {
   try {
-    // Verify API key is loaded
+    // Debug: Log the API key being used
+    console.log('Using NewsAPI key:', process.env.VITE_RAPID_NEWORG_API_KEY ? 'Exists' : 'Missing');
+    
     const apiKey = process.env.VITE_RAPID_NEWORG_API_KEY;
     if (!apiKey) {
       throw new Error('NewsAPI key not configured in environment variables');
     }
 
-    const { data } = await axios.get('https://newsapi.org/v2/top-headlines', {
+    const response = await axios.get('https://newsapi.org/v2/top-headlines', {
       params: {
         category: 'health',
         country: 'us',
         pageSize: 20,
-        apiKey: apiKey  // Add the key here as a query parameter
+        apiKey: apiKey // Add as query parameter
       },
       headers: {
-        'X-Api-Key': apiKey  // And also in headers for redundancy
+        'X-Api-Key': apiKey // Also include in headers
       }
     });
 
-    if (!data.articles) {
+    if (!response.data.articles) {
       throw new Error('No articles in NewsAPI response');
     }
 
-    res.json(data);
+    res.json(response.data);
   } catch (error) {
-    console.error('NewsAPI proxy error:', {
+    console.error('Detailed NewsAPI error:', {
       message: error.message,
-      responseData: error.response?.data,
-      config: error.config
+      config: error.config,
+      response: error.response?.data
     });
     
     res.status(500).json({ 
