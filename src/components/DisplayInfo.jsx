@@ -47,7 +47,7 @@ const DisplayInfo = () => {
           createdBy: user.email.address,
           createdAt: new Date().toISOString(),
         }),
-        credentials: "include"
+       // credentials: "include"
       });
 
       if (!response.ok) {
