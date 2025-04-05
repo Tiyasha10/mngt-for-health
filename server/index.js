@@ -10,18 +10,15 @@ const allowedOrigins = [
   "http://localhost:3000" // For local development
 ];
 
+app.options('*', cors());
+
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  origin: [
+    "https://legendary-gaufre-347b90.netlify.app",
+    "http://localhost:3000"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Added OPTIONS
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
 
