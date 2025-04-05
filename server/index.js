@@ -1,13 +1,28 @@
 import express from "express";
 import cors from "cors";
-import postsRoutes from "./posts.js";  // ✅ Ensure correct path
+import postsRoutes from "./posts.js";
 
 const app = express();
-app.use(cors());
-app.use(express.json());  // ✅ Required to parse JSON in requests
 
-app.use("/api", postsRoutes);  // ✅ This exposes "/api/posts"
+// Enhanced CORS configuration
+const corsOptions = {
+  origin: [
+    'http://localhost:5173', // Vite dev server
+    'https://your-frontend-domain.vercel.app' // Your production frontend URL
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+};
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
+app.use(cors(corsOptions));
+app.use(express.json());
+
+// API routes
+app.use("/api", postsRoutes);
+
+// Get port from environment or use default
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

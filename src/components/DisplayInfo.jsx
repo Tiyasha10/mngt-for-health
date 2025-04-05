@@ -22,6 +22,7 @@ const DisplayInfo = () => {
   const [showReplies, setShowReplies] = useState({});
   const [likedPosts, setLikedPosts] = useState({});
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     fetchPosts();
   }, []);
@@ -36,7 +37,7 @@ const DisplayInfo = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/posts", {
+      const response = await fetch(`${API_BASE_URL}/api/posts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -66,7 +67,7 @@ const DisplayInfo = () => {
   if (!replyText?.trim()) return;
 
   try {
-    const response = await fetch(`http://localhost:5000/api/posts/${postId}/replies`, {
+    const response = await fetch(`${API_BASE_URL}/api/posts/${postId}/replies`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
