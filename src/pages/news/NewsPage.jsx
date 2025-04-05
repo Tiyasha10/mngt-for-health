@@ -20,29 +20,26 @@ const NewsPage = () => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const params = new URLSearchParams(NEWS_API_CONFIG.params);
-        const response = await fetch(`${NEWS_API_CONFIG.url}?${params}`, {
-          headers: {
-            'X-Api-Key': import.meta.env.VITE_NEWS_API_KEY
-          }
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/news`, {
+          credentials: 'include' // If you need cookies/auth
         });
-
+    
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+    
         const data = await response.json();
         
         if (!data.articles) {
           throw new Error('No articles found in response');
         }
-
+    
         const articlesWithIds = data.articles.map((article, index) => ({
           ...article,
           id: `${article.publishedAt}-${index}`,
-          votes: localStorage.getItem(`votes-${article.title}`) || 0
+          votes: parseInt(localStorage.getItem(`votes-${article.title}`)) || 0
         }));
-
+    
         setArticles(articlesWithIds);
       } catch (error) {
         console.error('Error fetching news:', error);
