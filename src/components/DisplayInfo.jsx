@@ -22,11 +22,12 @@ const DisplayInfo = () => {
   const [showReplies, setShowReplies] = useState({});
   const [likedPosts, setLikedPosts] = useState({});
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     fetchPosts();
   }, []);
 
+  const API_URL = import.meta.env.VITE_API_BASE_URL || "https://mngt-for-health-1.onrender.com";
+//const response = await fetch(`${API_URL}/api/posts`
   // Function to handle creating a new post
   const handleCreatePost = async () => {
     if (!newPost.trim()) return;
@@ -37,7 +38,7 @@ const DisplayInfo = () => {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/posts`, {
+      const response = await fetch(`${API_URL}/api/posts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -67,7 +68,7 @@ const DisplayInfo = () => {
   if (!replyText?.trim()) return;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/posts/${postId}/replies`, {
+    const response = await fetch(`${API_URL}/api/posts/${postId}/replies`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

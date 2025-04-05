@@ -4,25 +4,27 @@ import postsRoutes from "./posts.js";
 
 const app = express();
 
-// Enhanced CORS configuration
-const corsOptions = {
-  origin: [
-    'http://localhost:5173', // Vite dev server
-    'https://gregarious-frangollo-e05687.netlify.app/' // Your production frontend URL
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-};
+// Configure CORS for production
+const allowedOrigins = [
+  "https://your-frontend-domain.netlify.app", // Replace with your frontend URL
+  "http://localhost:3000" // For local development
+];
 
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.json());
-
-// API routes
 app.use("/api", postsRoutes);
 
-// Get port from environment or use default
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

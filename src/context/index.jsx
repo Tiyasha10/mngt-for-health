@@ -118,7 +118,7 @@ export const StateContextProvider = ({ children }) => {
   // Function to fetch posts
   const fetchPosts = useCallback(async () => {
     try {
-      const API_URL = import.meta.env.VITE_API_BASE_URL;
+      const API_URL = import.meta.env.VITE_API_BASE_URL || "https://mngt-for-health-1.onrender.com";
       const response = await fetch(`${API_URL}/api/posts`);
       if (!response.ok) throw new Error("Failed to fetch posts");
       const data = await response.json();
