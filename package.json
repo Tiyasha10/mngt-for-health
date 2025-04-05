@@ -10,6 +10,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "start": "node server/index.js",
     "deploy": "yarn build && npx thirdweb@latest upload dist",
     "db:push": "drizzle-kit push",
     "db:studio": "npx drizzle-kit studio"

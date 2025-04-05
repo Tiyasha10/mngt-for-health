@@ -47,17 +47,20 @@ const DisplayInfo = () => {
           createdBy: user.email.address,
           createdAt: new Date().toISOString(),
         }),
+        credentials: "include"
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create post");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create post");
       }
 
       const newPostData = await response.json();
       setPosts((prevPosts) => [newPostData, ...prevPosts]);
       setNewPost("");
     } catch (error) {
-      console.error("Error creating post:", error);
+      console.error("Post creation error:", error);
+      alert(`Error: ${error.message}`); 
     }
   };
 
