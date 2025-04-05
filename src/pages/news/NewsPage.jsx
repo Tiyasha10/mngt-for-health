@@ -18,36 +18,36 @@ const NewsPage = () => {
   };
 
   useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/news`, {
-          credentials: 'include' // If you need cookies/auth
-        });
+    // Remove the NEWS_API_CONFIG completely and update fetchNews to:
+const fetchNews = async () => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/news`);
     
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
     
-        const data = await response.json();
-        
-        if (!data.articles) {
-          throw new Error('No articles found in response');
-        }
-    
-        const articlesWithIds = data.articles.map((article, index) => ({
-          ...article,
-          id: `${article.publishedAt}-${index}`,
-          votes: parseInt(localStorage.getItem(`votes-${article.title}`)) || 0
-        }));
-    
-        setArticles(articlesWithIds);
-      } catch (error) {
-        console.error('Error fetching news:', error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (!data.articles) {
+      throw new Error('No articles found in response');
+    }
+
+    const articlesWithIds = data.articles.map((article, index) => ({
+      ...article,
+      id: `${article.publishedAt}-${index}`,
+      votes: parseInt(localStorage.getItem(`votes-${article.title}`)) || 0
+    }));
+
+    setArticles(articlesWithIds);
+  } catch (error) {
+    console.error('Full fetch error:', error);
+    setError(error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
     fetchNews();
   }, []);
