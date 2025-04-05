@@ -31,22 +31,38 @@ app.use("/api", postsRoutes);
 const PORT = process.env.PORT || 5000;
 
 // Add this route before app.listen()
-// Update your NewsAPI endpoint to use the correct environment variable name
 app.get('/api/news', async (req, res) => {
   try {
+    // Verify API key is loaded
+    const apiKey = process.env.VITE_RAPID_NEWORG_API_KEY;
+    if (!apiKey) {
+      throw new Error('NewsAPI key not configured in environment variables');
+    }
+
     const { data } = await axios.get('https://newsapi.org/v2/top-headlines', {
       params: {
         category: 'health',
         country: 'us',
-        pageSize: 20
+        pageSize: 20,
+        apiKey: apiKey  // Add the key here as a query parameter
       },
       headers: {
-        'X-Api-Key': process.env.VITE_RAPID_NEWORG_API_KEY // Must match Render env var name exactly
+        'X-Api-Key': apiKey  // And also in headers for redundancy
       }
     });
+
+    if (!data.articles) {
+      throw new Error('No articles in NewsAPI response');
+    }
+
     res.json(data);
   } catch (error) {
-    console.error('NewsAPI proxy error:', error.response?.data || error.message);
+    console.error('NewsAPI proxy error:', {
+      message: error.message,
+      responseData: error.response?.data,
+      config: error.config
+    });
+    
     res.status(500).json({ 
       error: 'Failed to fetch news',
       details: error.response?.data || error.message 
