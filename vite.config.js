@@ -14,7 +14,7 @@ export default defineConfig({
     proxy: {
       // For development (matches your .env file)
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://mngt-for-health.onrender.com', // Replace with your backend URL
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       }
