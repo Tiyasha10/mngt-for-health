@@ -2,7 +2,7 @@ Live app link : https://legendary-gaufre-347b90.netlify.app/
 
 
 ## 🎥 Project Demo
-(click the photo to see the project video. hope you enjoy as much as we did creating!!)
+(click the picture to see the project demo video. hope you enjoy as much as we did creating!!)
 #This project is an AI powered health management app with six unique features-
 - Health Journaling  
 - AI-Powered Health Report Analysis  
